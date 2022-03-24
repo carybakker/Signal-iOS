@@ -3,6 +3,8 @@
 //
 
 import Foundation
+import SignalUI
+import SafariServices
 
 @objc
 class PaymentsTransferInViewController: OWSTableViewController2 {
@@ -14,7 +16,7 @@ class PaymentsTransferInViewController: OWSTableViewController2 {
         title = NSLocalizedString("SETTINGS_PAYMENTS_ADD_MONEY",
                                   comment: "Label for 'add money' view in the payment settings.")
 
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(didTapDone))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapDone))
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "share-ios-24"),
                                                             landscapeImagePhone: nil,
@@ -46,7 +48,24 @@ class PaymentsTransferInViewController: OWSTableViewController2 {
 
     private func updateTableContents() {
         let contents = OWSTableContents()
+    
+        let logoSection = OWSTableSection()
+        logoSection.hasBackground = false
+        logoSection.shouldDisableCellSelection = true
+        logoSection.add(OWSTableItem(customCellBlock: {
+            let cell = OWSTableItem.newCell()
 
+            let imageView = UIImageView(image: UIImage(named: "mobilecoin-header-logo"))
+            imageView.contentMode = .center
+            let headerStack = UIStackView(arrangedSubviews: [imageView])
+            cell.contentView.addSubview(headerStack)
+            headerStack.autoPinEdgesToSuperviewMargins()
+
+            return cell
+        },
+        actionBlock: nil))
+        contents.addSection(logoSection)
+    
         let addressSection = OWSTableSection()
         addressSection.hasBackground = false
         addressSection.shouldDisableCellSelection = true
@@ -58,30 +77,67 @@ class PaymentsTransferInViewController: OWSTableViewController2 {
         actionBlock: nil))
         contents.addSection(addressSection)
 
-        let infoSection = OWSTableSection()
-        infoSection.hasBackground = false
-        infoSection.shouldDisableCellSelection = true
-        infoSection.add(OWSTableItem(customCellBlock: {
-            let cell = OWSTableItem.newCell()
+        contents.addSection(createBuyMobTableSection())
+        
+        self.contents = contents
+    }
 
-            let label = PaymentsViewUtils.buildTextWithLearnMoreLinkTextView(
+    private func createBuyMobTableSection() -> OWSTableSection {
+        let buyMobSection = OWSTableSection()
+        buyMobSection.hasBackground = false
+        buyMobSection.shouldDisableCellSelection = true
+        buyMobSection.add(OWSTableItem(customCellBlock: {
+            let cell = OWSTableItem.newCell()
+            
+            let buyMobLabel = PaymentsViewUtils.buildTextWithLearnMoreLinkTextView(
                 text: NSLocalizedString("SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION",
-                                        comment: "Explanation of the process for adding money in the 'add money' settings view."),
+                                        comment: "Prompt to add MOB via MobileCoin Inc. via the 'add money' settings view."),
                 font: .ows_dynamicTypeBody2Clamped,
                 learnMoreUrl: "https://support.signal.org/hc/en-us/articles/360057625692#payments_transfer_from_exchange")
-            label.textAlignment = .center
-            cell.contentView.addSubview(label)
-            label.autoPinEdgesToSuperviewMargins()
+            buyMobLabel.textAlignment = .center
+
+            let buyMobButton = OWSButton()
+            buyMobButton.setTitle(NSLocalizedString("SETTINGS_PAYMENTS_BUY_MOB",
+                                                    comment: "Buy MOB button title on Add Funds screen."), for: .normal)
+            buyMobButton.setTitleColor(.ows_white, for: .normal)
+            buyMobButton.setBackgroundImage(UIImage(color: UIColor(rgbHex: 0x2A67F9)), for: .normal)
+            buyMobButton.titleLabel?.font = UIFont.ows_dynamicTypeBodyClamped.ows_semibold
+            buyMobButton.clipsToBounds = true
+            buyMobButton.layer.cornerRadius = 8
+            buyMobButton.block = {
+                UIApplication.shared.open(URL(string:"https://scientificode.com/mobilecoin/buymobilecoin.html")!)
+            }
+            buyMobButton.contentEdgeInsets = UIEdgeInsets(top: 11, leading: 11, bottom: 11, trailing: 11)
+
+            let viewTermsButton = OWSButton()
+            viewTermsButton.setTitle(NSLocalizedString("SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS",
+                                                       comment: "View MobileCoin Terms button title on Add Funds screen."), for: .normal)
+            viewTermsButton.setTitleColor(UIColor(rgbHex: 0x2A67F9), for: .normal)
+            viewTermsButton.titleLabel?.font = UIFont.ows_regularFont(withSize: 14.0)
+            viewTermsButton.block = {
+                let vc = SFSafariViewController(url: URL(string:"https://support.signal.org/hc/en-us/articles/360057625692#payments_transfer_from_exchange")!)
+                CurrentAppContext().frontmostViewController()?.present(vc, animated: true, completion: nil)
+            }
+
+            cell.contentView.addSubview(buyMobLabel)
+            cell.contentView.addSubview(buyMobButton)
+            cell.contentView.addSubview(viewTermsButton)
+
+            buyMobLabel.autoPinEdge(toSuperviewEdge: .top)
+            buyMobLabel.autoPinWidthToSuperview(withMargin: 38)
+            buyMobButton.autoPinEdge(.top, to: .bottom, of: buyMobLabel, withOffset: 24)
+            buyMobButton.autoPinWidthToSuperview(withMargin: 38)
+            viewTermsButton.autoPinEdge(.top, to: .bottom, of: buyMobButton, withOffset: 24)
+            viewTermsButton.autoPinEdge(toSuperviewEdge: .bottom, withInset: 53)
+            viewTermsButton.autoHCenterInSuperview()
 
             return cell
         },
         actionBlock: nil))
-
-        contents.addSection(infoSection)
-
-        self.contents = contents
+        
+        return buyMobSection
     }
-
+    
     private func configureAddressCell(cell: UITableViewCell) {
         func configureWithSubviews(subviews: [UIView]) {
             let innerStack = UIStackView(arrangedSubviews: subviews)
@@ -96,7 +152,7 @@ class PaymentsTransferInViewController: OWSTableViewController2 {
                                           arrangedSubviews: [innerStack])
             outerStack.axis = .vertical
             outerStack.alignment = .center
-            outerStack.layoutMargins = UIEdgeInsets(top: 40, leading: 40, bottom: 0, trailing: 40)
+            outerStack.layoutMargins = UIEdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 40)
             outerStack.isLayoutMarginsRelativeArrangement = true
             cell.contentView.addSubview(outerStack)
             outerStack.autoPinEdgesToSuperviewMargins()
