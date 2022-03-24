@@ -5437,8 +5437,14 @@
 /* Label for 'add money' view in the payment settings. */
 "SETTINGS_PAYMENTS_ADD_MONEY" = "ಫಂಡ್‌ಗಳನ್ನು ಸೇರಿಸಿ";
 
+/* Label for 'View MobileCoin Terms' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_BUY_MOB" = "Buy MOB";
+
+/* Label for 'Buy MOB' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS" = "View MobileCoin Terms";
+
 /* Explanation of the process for adding money in the 'add money' settings view. */
-"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "ಫಂಡ್‌ಗಳನ್ನು ಸೇರಿಸಲು, ನಿಮ್ಮ ವಾಲೆಟ್ ವಿಳಾಸಕ್ಕೆ ಮೊಬೈಲ್‌ಕಾಯಿನ್‌ ಕಳುಹಿಸಿ. ಮೊಬೈಲ್‌ಕಾಯಿನ್ ಬೆಂಬಲಿಸುವ ವಿನಿಮಯದಲ್ಲಿ ನಿಮ್ಮ ಖಾತೆಯಿಂದ ವಹಿವಾಟನ್ನು ಆರಂಭಿಸಿ, ನಂತರ ಕ್ಯುಆರ್‌ ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಅಥವಾ ನಿಮ್ಮ ವಾಲೆಟ್ ವಿಳಾಸವನ್ನು ನಕಲು ಮಾಡಿ.";
+"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Buy MOB from our partner MobileCoin Inc.";
 
 /* Indicator that the payments wallet address has been copied to the pasteboard. */
 "SETTINGS_PAYMENTS_ADD_MONEY_WALLET_ADDRESS_COPIED" = "ವ್ಯಾಲೆಟ್‌ ವಿಳಾಸವನ್ನು ನಕಲಿಸಲಾಗಿದೆ";

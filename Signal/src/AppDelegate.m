@@ -51,6 +51,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 static NSString *const kURLHostAddStickersPrefix = @"addstickers";
 NSString *const kURLHostTransferPrefix = @"transfer";
 NSString *const kURLHostLinkDevicePrefix = @"linkdevice";
+static NSString *const kURLHostMobileCoinPrefix = @"mc";
 
 static NSTimeInterval launchStartedAt;
 
@@ -493,6 +494,8 @@ static void uncaughtExceptionHandler(NSException *exception)
                 return NO;
             }
             return [self tryToShowLinkDeviceViewWithParser:parser];
+        } else if ([url.host hasPrefix:kURLHostMobileCoinPrefix]) {
+            return [self tryToShowPaymentsView];
         } else {
             OWSLogVerbose(@"Invalid URL: %@", url);
             OWSFailDebug(@"Unknown URL host: %@", url.host);
@@ -637,6 +640,33 @@ static void uncaughtExceptionHandler(NSException *exception)
     });
     return YES;
 }
+
+- (BOOL)tryToShowPaymentsView
+{
+    OWSAssertDebug(!self.didAppLaunchFail);
+    AppReadinessRunNowOrWhenAppDidBecomeReadySync(^{
+        if (!self.tsAccountManager.isRegistered) {
+            OWSFailDebug(@"Ignoring payments URL; not registered.");
+            return;
+        }
+
+        UINavigationController *navController = [PaymentsSettingsViewController inModalNavigationController];
+
+        UIViewController *rootViewController = self.window.rootViewController;
+        if (rootViewController.presentedViewController) {
+            [rootViewController dismissViewControllerAnimated:NO
+                                                   completion:^{
+                                                       [rootViewController presentFormSheetViewController:navController
+                                                                                                 animated:NO
+                                                                                               completion:^ {}];
+                                                   }];
+        } else {
+            [rootViewController presentFormSheetViewController:navController animated:NO completion:^ {}];
+        }
+    });
+    return YES;
+}
+
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     OWSAssertIsOnMainThread();

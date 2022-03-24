@@ -27,7 +27,15 @@ public enum PaymentsSettingsMode: UInt, CustomStringConvertible {
 @objc
 public class PaymentsSettingsViewController: OWSTableViewController2 {
 
+    @objc
+    class func inModalNavigationController() -> OWSNavigationController {
+        let pvc = PaymentsSettingsViewController(mode: .standalone)
+        pvc.updatingBalance = true
+        return OWSNavigationController(rootViewController: pvc)
+    }
+
     private let mode: PaymentsSettingsMode
+    var updatingBalance: Bool = false
 
     private let paymentsHistoryDataSource = PaymentsHistoryDataSource()
 
@@ -220,7 +228,7 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(updateTableContents),
+            selector: #selector(paymentBalanceUpdated),
             name: PaymentsImpl.currentPaymentBalanceDidChange,
             object: nil
         )
@@ -241,6 +249,12 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
             presentToast(text: NSLocalizedString("SETTINGS_PAYMENTS_PAYMENTS_DISABLED_TOAST",
                                                  comment: "Message indicating that payments have been disabled in the app settings."))
         }
+    }
+    
+    @objc
+    private func paymentBalanceUpdated() {
+        self.updatingBalance = false
+        self.updateTableContents()
     }
 
     @objc
@@ -331,7 +345,7 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
             conversionInfoView.tintColor = .clear
         }
 
-        if let paymentBalance = Self.paymentsSwift.currentPaymentBalance {
+        if !updatingBalance, let paymentBalance = Self.paymentsSwift.currentPaymentBalance {
             balanceLabel.attributedText = PaymentsFormat.attributedFormat(paymentAmount: paymentBalance.amount,
                                                                           isShortForm: false)
 

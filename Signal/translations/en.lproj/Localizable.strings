@@ -5437,8 +5437,14 @@
 /* Label for 'add money' view in the payment settings. */
 "SETTINGS_PAYMENTS_ADD_MONEY" = "Add Funds";
 
+/* Label for 'View MobileCoin Terms' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_BUY_MOB" = "Buy MOB";
+
+/* Label for 'Buy MOB' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS" = "View MobileCoin Terms";
+
 /* Explanation of the process for adding money in the 'add money' settings view. */
-"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "To add funds, send MobileCoin to your wallet address. Start a transaction from your account on an exchange that supports MobileCoin, then scan the QR code or copy your wallet address.";
+"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Buy MOB from our partner MobileCoin Inc.";
 
 /* Indicator that the payments wallet address has been copied to the pasteboard. */
 "SETTINGS_PAYMENTS_ADD_MONEY_WALLET_ADDRESS_COPIED" = "Wallet Address Copied";
@@ -5450,7 +5456,7 @@
 "SETTINGS_PAYMENTS_BALANCE_CONVERSION_FORMAT" = "%1$@ %2$@ at %3$@";
 
 /* Error message indicating that payments could not be activated because the feature is not currently available. */
-"SETTINGS_PAYMENTS_CANNOT_ACTIVATE_PAYMENTS_KILL_SWITCH" = "Payments in Signal is no longer available. You can still transfer funds to an exchange but you can no longer send and receive payments or add funds.";
+"SETTINGS_PAYMENTS_CANNOT_ACTIVATE_PAYMENTS_KILL_SWITCH" = "Payments in Signal is no longer available. You can still transfer funds to an exchange but you can no longer send and receive payments or add funds.\n";
 
 /* Error message indicating that payments could not be deactivated because the current balance is unavailable. */
 "SETTINGS_PAYMENTS_CANNOT_DEACTIVATE_PAYMENTS_NO_BALANCE" = "Can't deactivate payments because your balance is not available. Check your connection and try again.";

@@ -5437,8 +5437,14 @@
 /* Label for 'add money' view in the payment settings. */
 "SETTINGS_PAYMENTS_ADD_MONEY" = "Añadir fondos";
 
+/* Label for 'View MobileCoin Terms' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_BUY_MOB" = "Buy MOB";
+
+/* Label for 'Buy MOB' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS" = "View MobileCoin Terms";
+
 /* Explanation of the process for adding money in the 'add money' settings view. */
-"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Para añadir fondos, envía MobileCoin a la dirección de tu cartera. Inicia una transferencia desde tu cuenta en un «exchange» que soporte MobileCoin. Después puedes escanear el código QR o copiar la dirección de tu cartera.";
+"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Buy MOB from our partner MobileCoin Inc.";
 
 /* Indicator that the payments wallet address has been copied to the pasteboard. */
 "SETTINGS_PAYMENTS_ADD_MONEY_WALLET_ADDRESS_COPIED" = "Dirección de la cartera copiada";

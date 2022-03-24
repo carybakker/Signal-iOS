@@ -5437,8 +5437,14 @@
 /* Label for 'add money' view in the payment settings. */
 "SETTINGS_PAYMENTS_ADD_MONEY" = "加值資金";
 
+/* Label for 'View MobileCoin Terms' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_BUY_MOB" = "Buy MOB";
+
+/* Label for 'Buy MOB' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS" = "View MobileCoin Terms";
+
 /* Explanation of the process for adding money in the 'add money' settings view. */
-"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "要加值資金，請將MobileCoin傳送到你的錢包位址。 在支援MobileCoin的交易所上從你的帳戶開始交易，然後掃描QR碼或複製你的錢包位址。";
+"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Buy MOB from our partner MobileCoin Inc.";
 
 /* Indicator that the payments wallet address has been copied to the pasteboard. */
 "SETTINGS_PAYMENTS_ADD_MONEY_WALLET_ADDRESS_COPIED" = "錢包位址已複製";

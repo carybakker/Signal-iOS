@@ -186,7 +186,7 @@ public class PaymentsViewUtils: NSObject {
 
         textView.attributedText = NSAttributedString.composed(of: [
             text,
-            " ",
+            "\n",
             CommonStrings.learnMore.styled(
                 with: .link(URL(string: learnMoreUrl)!)
             )

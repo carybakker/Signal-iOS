@@ -5437,8 +5437,14 @@
 /* Label for 'add money' view in the payment settings. */
 "SETTINGS_PAYMENTS_ADD_MONEY" = "கூட்டு நிதி";
 
+/* Label for 'View MobileCoin Terms' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_BUY_MOB" = "Buy MOB";
+
+/* Label for 'Buy MOB' button of Add Funds screen. */
+"SETTINGS_PAYMENTS_VIEW_MOBILECOIN_TERMS" = "View MobileCoin Terms";
+
 /* Explanation of the process for adding money in the 'add money' settings view. */
-"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "க்கு கூட்டு நிதி, அனுப்பு உங்களிடம் MobileCoin பணப்பை முகவரி. உங்களிடமிருந்து ஒரு பரிவர்த்தனையைத் தொடங்கவும்கணக்கு ஒரு பரிமாற்றம் இது MobileCoin ஐ ஆதரிக்கிறது ஊடுகதிர் தி க்யு ஆர் குறியீடு அல்லது நகல் உங்கள் பணப்பை முகவரி.";
+"SETTINGS_PAYMENTS_ADD_MONEY_DESCRIPTION" = "Buy MOB from our partner MobileCoin Inc.";
 
 /* Indicator that the payments wallet address has been copied to the pasteboard. */
 "SETTINGS_PAYMENTS_ADD_MONEY_WALLET_ADDRESS_COPIED" = "Wallet முகவரி நகலெடுக்கப்பட்டது";
