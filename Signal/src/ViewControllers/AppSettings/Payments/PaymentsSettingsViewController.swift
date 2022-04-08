@@ -31,11 +31,15 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
     class func inModalNavigationController() -> OWSNavigationController {
         let pvc = PaymentsSettingsViewController(mode: .standalone)
         pvc.updatingBalance = true
+        pvc.buyingMob = true
         return OWSNavigationController(rootViewController: pvc)
     }
 
     private let mode: PaymentsSettingsMode
     var updatingBalance: Bool = false
+
+    // buying MOB update has a slightly different appearance
+    var buyingMob: Bool = false
 
     private let paymentsHistoryDataSource = PaymentsHistoryDataSource()
 
@@ -254,6 +258,7 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
     @objc
     private func paymentBalanceUpdated() {
         self.updatingBalance = false
+        self.buyingMob = false
         self.updateTableContents()
     }
 
@@ -354,7 +359,11 @@ public class PaymentsSettingsViewController: OWSTableViewController2 {
             } else {
                 hideConversions()
             }
-        } else {
+        } else if buyingMob {
+            balanceLabel.text = "-- MOB"
+            conversionLabel.text = "Loading Balance"
+        }
+        else {
             // Use an empty string to avoid jitter in layout between the
             // "pending balance" and "has balance" states.
             balanceLabel.text = " "
