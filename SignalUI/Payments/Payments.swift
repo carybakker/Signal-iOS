@@ -33,6 +33,8 @@ public protocol Payments: AnyObject {
     var isKillSwitchActive: Bool { get }
 
     func clearState(transaction: SDSAnyWriteTransaction)
+
+    func buyMobUrl() -> URL
 }
 
 // MARK: -
@@ -225,6 +227,10 @@ extension MockPayments: PaymentsSwift {
     }
 
     public func blockOnOutgoingVerification(paymentModel: TSPaymentModel) -> Promise<Bool> {
+        owsFail("Not implemented.")
+    }
+
+    public func buyMobUrl() -> URL {
         owsFail("Not implemented.")
     }
 }

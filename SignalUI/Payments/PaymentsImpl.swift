@@ -1216,6 +1216,29 @@ public extension PaymentsImpl {
 
 // MARK: -
 
+public extension PaymentsImpl {
+    func buyMobUrl() -> URL {
+        var queryItems = [URLQueryItem]()
+
+        if let walletAddressBase58 = walletAddressBase58() {
+            queryItems.append(URLQueryItem(name: "walletAddress", value: walletAddressBase58))
+        }
+
+        if let language = Locale.current.languageCode?.nilIfEmpty {
+            queryItems.append(URLQueryItem(name: "language", value: language))
+        }
+
+        queryItems.append(URLQueryItem(name: "redirectURL", value: "sgnl://mc/buy"))
+        queryItems.append(URLQueryItem(name: "currencyCode", value: paymentsCurrencies.currentCurrencyCode))
+
+        var urlComps = URLComponents(string: MobileCoinAPI.buyMobUrlString())!
+        urlComps.queryItems = queryItems
+        return urlComps.url!
+    }
+}
+
+// MARK: -
+
 public enum SendPaymentRecipientImpl: SendPaymentRecipient {
     case address(address: SignalServiceAddress)
     case publicAddress(publicAddress: MobileCoin.PublicAddress)

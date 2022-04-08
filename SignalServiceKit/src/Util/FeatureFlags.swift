@@ -491,7 +491,7 @@ public class DebugFlags: BaseFlags {
 
     @objc
     public static let ignoreAppStoreVersionNag = true
-    
+
     @objc
     public static let deviceTransferPreserveOldDevice = false
 

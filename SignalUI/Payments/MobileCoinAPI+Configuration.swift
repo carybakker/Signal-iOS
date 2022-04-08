@@ -22,7 +22,7 @@ extension MobileCoinAPI {
             if TSConstants.isUsingProductionService {
                 return .signalMainNet
             } else {
-                return .mobileCoinAlphaNet
+                return .mobileCoinTestNet
             }
         }
 
@@ -49,41 +49,50 @@ extension MobileCoinAPI {
     struct MobileCoinNetworkConfig {
         let consensusUrl: String
         let fogUrl: String
+        let buyMobUrl: String
 
         static var signalMainNet: MobileCoinNetworkConfig {
             let consensusUrl = "mc://node1.prod.mobilecoinww.com"
             let fogUrl = "fog://service.fog.mob.production.namda.net"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            let buyMobUrl = "https://buy.mobilecoin.com/signal"
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static var mobileCoinMainNet: MobileCoinNetworkConfig {
             let consensusUrl = "mc://node1.prod.mobilecoinww.com"
             let fogUrl = "fog://fog.prod.mobilecoinww.com"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            let buyMobUrl = "https://buy.mobilecoin.com/signal"
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static var signalTestNet: MobileCoinNetworkConfig {
             let consensusUrl = "mc://node1.test.mobilecoin.com"
             let fogUrl = "fog://service.fog.mob.staging.namda.net"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            let buyMobUrl = "https://staging.buy.mobilecoin.com/signal"
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static var mobileCoinTestNet: MobileCoinNetworkConfig {
             let consensusUrl = "mc://node1.test.mobilecoin.com"
             let fogUrl = "fog://fog.test.mobilecoin.com"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            let buyMobUrl = "https://staging.buy.mobilecoin.com/signal"
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static var mobileCoinAlphaNet: MobileCoinNetworkConfig {
             let consensusUrl = "mc://consensus.alpha.mobilecoin.com"
             let fogUrl = "fog://fog.alpha.mobilecoin.com"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            // TODO: Add Alpha env url when available
+            let buyMobUrl = ""
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static var mobileCoinMobileDev: MobileCoinNetworkConfig {
             let consensusUrl = "mc://consensus.mobiledev.mobilecoin.com"
             let fogUrl = "fog://fog.mobiledev.mobilecoin.com"
-            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl)
+            // TODO: Add Alpha env url when available
+            let buyMobUrl = ""
+            return MobileCoinNetworkConfig(consensusUrl: consensusUrl, fogUrl: fogUrl, buyMobUrl: buyMobUrl)
         }
 
         static func networkConfig(environment: Environment) -> MobileCoinNetworkConfig {

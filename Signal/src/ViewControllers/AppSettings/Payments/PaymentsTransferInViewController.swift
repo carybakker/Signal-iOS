@@ -5,6 +5,7 @@
 import Foundation
 import SignalUI
 import SafariServices
+import MobileCoin
 
 @objc
 class PaymentsTransferInViewController: OWSTableViewController2 {
@@ -105,7 +106,7 @@ class PaymentsTransferInViewController: OWSTableViewController2 {
             buyMobButton.clipsToBounds = true
             buyMobButton.layer.cornerRadius = 8
             buyMobButton.block = {
-                UIApplication.shared.open(URL(string:"https://scientificode.com/mobilecoin/buymobilecoin.html")!)
+                UIApplication.shared.open(Self.paymentsImpl.buyMobUrl())
             }
             buyMobButton.contentEdgeInsets = UIEdgeInsets(top: 11, leading: 11, bottom: 11, trailing: 11)
 

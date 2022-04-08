@@ -869,4 +869,8 @@ extension MobileCoinAPI {
             return nil
         }
     }
+
+    static func buyMobUrlString() -> String {
+        MobileCoinAPI.MobileCoinNetworkConfig.networkConfig(environment: MobileCoinAPI.Environment.current).buyMobUrl
+    }
 }
