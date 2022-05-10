@@ -76,6 +76,8 @@ public protocol CVComponentDelegate {
 
     func cvc_didTapLinkPreview(_ linkPreview: OWSLinkPreview)
 
+    func cvc_didTapPaymentPreview(_ paymentPreview: OWSPaymentPreview)
+
     func cvc_didTapContactShare(_ contactShare: ContactShareViewModel)
 
     func cvc_didTapSendMessage(toContactShare contactShare: ContactShareViewModel)

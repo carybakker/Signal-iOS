@@ -170,6 +170,27 @@ public class CVComponentState: Equatable, Dependencies {
     }
     let linkPreview: LinkPreview?
 
+    struct PaymentPreview: Equatable {
+        // TODO: convert OWSLinkPreview to Swift?
+        let paymentPreview: OWSPaymentPreview
+        let state: PaymentPreviewState
+
+        // MARK: - Equatable
+
+        public static func == (lhs: PaymentPreview, rhs: PaymentPreview) -> Bool {
+            guard let lhs = lhs.state as? NSObject else {
+                owsFailDebug("Invalid value.")
+                return false
+            }
+            guard let rhs = rhs.state as? NSObject else {
+                owsFailDebug("Invalid value.")
+                return false
+            }
+            return NSObject.isNullableObject(lhs, equalTo: rhs)
+        }
+    }
+    let paymentPreview: PaymentPreview?
+
     struct SystemMessage: Equatable {
         let title: NSAttributedString
         let titleColor: UIColor
@@ -241,6 +262,7 @@ public class CVComponentState: Equatable, Dependencies {
                      sticker: Sticker?,
                      contactShare: ContactShare?,
                      linkPreview: LinkPreview?,
+                     paymentPreview: PaymentPreview?,
                      systemMessage: SystemMessage?,
                      dateHeader: DateHeader?,
                      unreadIndicator: UnreadIndicator?,
@@ -265,6 +287,7 @@ public class CVComponentState: Equatable, Dependencies {
         self.sticker = sticker
         self.contactShare = contactShare
         self.linkPreview = linkPreview
+        self.paymentPreview = paymentPreview
         self.systemMessage = systemMessage
         self.dateHeader = dateHeader
         self.unreadIndicator = unreadIndicator
@@ -293,6 +316,7 @@ public class CVComponentState: Equatable, Dependencies {
                     lhs.sticker == rhs.sticker &&
                     lhs.contactShare == rhs.contactShare &&
                     lhs.linkPreview == rhs.linkPreview &&
+                    lhs.paymentPreview == rhs.paymentPreview &&
                     lhs.systemMessage == rhs.systemMessage &&
                     lhs.dateHeader == rhs.dateHeader &&
                     lhs.unreadIndicator == rhs.unreadIndicator &&
@@ -321,6 +345,7 @@ public class CVComponentState: Equatable, Dependencies {
         typealias ContactShare = CVComponentState.ContactShare
         typealias Reactions = CVComponentState.Reactions
         typealias LinkPreview = CVComponentState.LinkPreview
+        typealias PaymentPreview = CVComponentState.PaymentPreview
         typealias DateHeader = CVComponentState.DateHeader
         typealias UnreadIndicator = CVComponentState.UnreadIndicator
         typealias TypingIndicator = CVComponentState.TypingIndicator
@@ -346,6 +371,7 @@ public class CVComponentState: Equatable, Dependencies {
         var systemMessage: SystemMessage?
         var contactShare: ContactShare?
         var linkPreview: LinkPreview?
+        var paymentPreview: PaymentPreview?
         var dateHeader: DateHeader?
         var unreadIndicator: UnreadIndicator?
         var typingIndicator: TypingIndicator?
@@ -381,6 +407,7 @@ public class CVComponentState: Equatable, Dependencies {
                                     sticker: sticker,
                                     contactShare: contactShare,
                                     linkPreview: linkPreview,
+                                    paymentPreview: paymentPreview,
                                     systemMessage: systemMessage,
                                     dateHeader: dateHeader,
                                     unreadIndicator: unreadIndicator,
@@ -496,6 +523,9 @@ public class CVComponentState: Equatable, Dependencies {
         }
         if linkPreview != nil {
             result.insert(.linkPreview)
+        }
+        if paymentPreview != nil {
+            result.insert(.paymentPreview)
         }
         if systemMessage != nil {
             result.insert(.systemMessage)
@@ -1119,6 +1149,28 @@ fileprivate extension CVComponentState.Builder {
                                            state: state)
         }
     }
+
+    mutating func buildPaymentPreview(message: TSMessage, paymentPreview: OWSPaymentPreview) throws {
+        guard bodyText != nil else {
+            owsFailDebug("Missing body text.")
+            return
+        }
+        guard let urlString = paymentPreview.urlString else {
+            owsFailDebug("Missing urlString.")
+            return
+        }
+        guard let url = URL(string: urlString) else {
+            owsFailDebug("Invalid urlString.")
+            return
+        }
+
+        let state = PaymentPreviewSent(paymentPreview: paymentPreview,
+                                    conversationStyle: conversationStyle)
+        self.paymentPreview = PaymentPreview(paymentPreview: paymentPreview,
+                                       state: state)
+    }
+
+
 }
 
 // MARK: - DisplayableText
@@ -1243,7 +1295,7 @@ public extension CVComponentState {
                 // "Primary" content is not body text.
                 // A link preview is associated with the body text.
                 break
-            case .bodyMedia, .sticker, .audioAttachment, .genericAttachment, .contactShare:
+            case .bodyMedia, .sticker, .audioAttachment, .genericAttachment, .contactShare, .paymentPreview:
                 hasPrimaryContent = true
             case .senderName, .senderAvatar, .footer, .reactions, .bottomButtons, .sendFailureBadge, .dateHeader, .unreadIndicator, .typingIndicator, .threadDetails, .failedOrPendingDownloads, .unknownThreadWarning, .defaultDisappearingMessageTimer, .messageRoot:
                 // "Primary" content is not just metadata / UI.

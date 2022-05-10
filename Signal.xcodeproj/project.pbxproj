@@ -971,6 +971,9 @@
 		A1A018531805C60D00A052A6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D221A091169C9E5E00537ABF /* CoreGraphics.framework */; };
 		A5E7C675248C5443007C949A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5E7C673248C5442007C949A /* InfoPlist.strings */; };
 		AC12B86D0DA4943DF1DE9CE6 /* OWSAddToContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC12B5FAA0E45C608224A310 /* OWSAddToContactViewController.swift */; };
+		AE09EDC228219192008D32F5 /* CVComponentPaymentPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE09EDC128219192008D32F5 /* CVComponentPaymentPreview.swift */; };
+		AE09EDC528219386008D32F5 /* PaymentPreviewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE09EDC428219386008D32F5 /* PaymentPreviewState.swift */; };
+		AE09EDC728219390008D32F5 /* PaymentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE09EDC628219390008D32F5 /* PaymentPreviewView.swift */; };
 		B0E5FF35E928F74474D1EF08 /* Pods_SignalNSE.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D9B34F0D33764222824AE9 /* Pods_SignalNSE.framework */; };
 		B60EDE041A05A01700D73516 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B60EDE031A05A01700D73516 /* AudioToolbox.framework */; };
 		B660F6D41C29868000687D6E /* whisperFake.cer in Resources */ = {isa = PBXBuildFile; fileRef = B660F69F1C29868000687D6E /* whisperFake.cer */; };
@@ -2261,6 +2264,9 @@
 		A5E7C674248C5442007C949A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = translations/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AC12B5FAA0E45C608224A310 /* OWSAddToContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OWSAddToContactViewController.swift; sourceTree = "<group>"; };
 		ACC519FE3DF79E0AF9BB1CD6 /* Pods-SignalNSE.app store release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignalNSE.app store release.xcconfig"; path = "Pods/Target Support Files/Pods-SignalNSE/Pods-SignalNSE.app store release.xcconfig"; sourceTree = "<group>"; };
+		AE09EDC128219192008D32F5 /* CVComponentPaymentPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVComponentPaymentPreview.swift; sourceTree = "<group>"; };
+		AE09EDC428219386008D32F5 /* PaymentPreviewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentPreviewState.swift; sourceTree = "<group>"; };
+		AE09EDC628219390008D32F5 /* PaymentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentPreviewView.swift; sourceTree = "<group>"; };
 		AEA97ACC8D9F89DB5E045B2B /* Pods-Signal.profiling.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Signal.profiling.xcconfig"; path = "Pods/Target Support Files/Pods-Signal/Pods-Signal.profiling.xcconfig"; sourceTree = "<group>"; };
 		B31469260B592A12BA0EF8FD /* Pods-SignalUI.app store release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignalUI.app store release.xcconfig"; path = "Pods/Target Support Files/Pods-SignalUI/Pods-SignalUI.app store release.xcconfig"; sourceTree = "<group>"; };
 		B60EDE031A05A01700D73516 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -2933,6 +2939,7 @@
 				348815CD25545B0F00D4F4C4 /* CVComponentGenericAttachment.swift */,
 				3426A36F25631C220036407F /* CVComponentLinkPreview.swift */,
 				347C383B252CE6C900F3D941 /* CVComponentMessage.swift */,
+				AE09EDC128219192008D32F5 /* CVComponentPaymentPreview.swift */,
 				347C383E252CE6C900F3D941 /* CVComponentQuotedReply.swift */,
 				343417F02530A7480034FE0C /* CVComponentReactions.swift */,
 				347C383F252CE6C900F3D941 /* CVComponentSenderName.swift */,
@@ -3180,6 +3187,7 @@
 				34A95550271B510400B05242 /* OWSTextField.m */,
 				34A95533271B510400B05242 /* OWSTextView.h */,
 				34A9550D271B510400B05242 /* OWSTextView.m */,
+				AE09EDC328219362008D32F5 /* PaymentPreview */,
 				34A95531271B510400B05242 /* ResizingScrollView.swift */,
 				34A95509271B510400B05242 /* TappableStackView.swift */,
 				34A95532271B510400B05242 /* TappableView.swift */,
@@ -4355,6 +4363,15 @@
 				965019D56019143614491DEF /* Pods-SignalUITests.testable release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		AE09EDC328219362008D32F5 /* PaymentPreview */ = {
+			isa = PBXGroup;
+			children = (
+				AE09EDC428219386008D32F5 /* PaymentPreviewState.swift */,
+				AE09EDC628219390008D32F5 /* PaymentPreviewView.swift */,
+			);
+			path = PaymentPreview;
 			sourceTree = "<group>";
 		};
 		B660F66C1C29867F00687D6E /* test */ = {
@@ -5639,10 +5656,12 @@
 				3402AA67271D9DEC0084CBAE /* VoiceMessageModel.swift in Sources */,
 				34A954E0271B4F3E00B05242 /* ColorOrGradient.swift in Sources */,
 				3402AA65271D9DEC0084CBAE /* ThreadViewModel.swift in Sources */,
+				AE09EDC528219386008D32F5 /* PaymentPreviewState.swift in Sources */,
 				3402AA57271D9DCD0084CBAE /* MediaMessageView.swift in Sources */,
 				3402AA95271D9E180084CBAE /* ContactsViewHelper.m in Sources */,
 				3402AA8F271D9E180084CBAE /* ThemeHeaderView.swift in Sources */,
 				3402AA7C271D9E180084CBAE /* ContactsViewHelper.swift in Sources */,
+				AE09EDC728219390008D32F5 /* PaymentPreviewView.swift in Sources */,
 				34A954AC271A471300B05242 /* SignalUI.docc in Sources */,
 				3402AA5A271D9DCD0084CBAE /* OWSTableViewController2.swift in Sources */,
 				3402AA6E271D9E180084CBAE /* OWSSearchBar.m in Sources */,
@@ -6066,6 +6085,7 @@
 				88A357B923639384009D6B9A /* MemberActionSheet.swift in Sources */,
 				346CD5C226306578004162D6 /* UnknownThreadWarningInteraction.swift in Sources */,
 				34E95C2D26A06740004807EC /* HomeViewController+Loading.swift in Sources */,
+				AE09EDC228219192008D32F5 /* CVComponentPaymentPreview.swift in Sources */,
 				34882C522694A9260013E289 /* HomeViewController+Notifications.swift in Sources */,
 				34B0796D1FCF46B100E248C2 /* MainAppContext.m in Sources */,
 				34E3EF101EFC2684007F6822 /* DebugUIPage.m in Sources */,

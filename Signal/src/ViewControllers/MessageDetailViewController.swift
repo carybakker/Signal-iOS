@@ -903,6 +903,10 @@ extension MessageDetailViewController: CVComponentDelegate {
         }
         UIApplication.shared.open(url, options: [:])
     }
+    
+    func cvc_didTapPaymentPreview(_ paymentPreview: OWSPaymentPreview) {
+        // TODO: Implement
+    }
 
     func cvc_didTapContactShare(_ contactShare: ContactShareViewModel) {
         let contactViewController = ContactViewController(contactShare: contactShare)

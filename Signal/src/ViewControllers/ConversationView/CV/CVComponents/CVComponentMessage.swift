@@ -46,6 +46,8 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
     private var quotedReply: CVComponent?
 
     private var linkPreview: CVComponent?
+    
+    private var paymentPreview: CVComponent?
 
     private var reactions: CVComponent?
 
@@ -115,6 +117,8 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
             return self.quotedReply
         case .linkPreview:
             return self.linkPreview
+        case .paymentPreview:
+            return self.paymentPreview
         case .reactions:
             return self.reactions
         case .contactShare:
@@ -889,6 +893,7 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
     fileprivate func buildContentSections() -> [ContentSection] {
         var contentSections = [ContentSection]()
         for sectionType in SectionType.allCases {
+            if (sectionType == SectionType.bottomNestedText) { continue }
             let subcomponents = subcomponents(forKeys: sectionType.possibleComponentKeys)
             if !subcomponents.isEmpty {
                 contentSections.append(ContentSection(
@@ -1042,7 +1047,7 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
             switch componentKey {
             case .bodyText:
                 return false
-            case .bodyMedia, .sticker, .quotedReply, .linkPreview, .viewOnce, .audioAttachment, .genericAttachment, .contactShare:
+            case .bodyMedia, .sticker, .quotedReply, .linkPreview, .paymentPreview, .viewOnce, .audioAttachment, .genericAttachment, .contactShare:
                 return true
             case .senderName:
                 return false
@@ -1804,6 +1809,7 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
         var viewOnceView: CVComponentView?
         var quotedReplyView: CVComponentView?
         var linkPreviewView: CVComponentView?
+        var paymentPreviewView: CVComponentView?
         var reactionsView: CVComponentView?
         var audioAttachmentView: CVComponentView?
         var genericAttachmentView: CVComponentView?
@@ -1832,6 +1838,8 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
                 return quotedReplyView
             case .linkPreview:
                 return linkPreviewView
+            case .paymentPreview:
+                return paymentPreviewView
             case .reactions:
                 return reactionsView
             case .audioAttachment:
@@ -1871,6 +1879,8 @@ public class CVComponentMessage: CVComponentBase, CVRootComponent {
                 quotedReplyView = subcomponentView
             case .linkPreview:
                 linkPreviewView = subcomponentView
+            case .paymentPreview:
+                paymentPreviewView = subcomponentView
             case .reactions:
                 reactionsView = subcomponentView
             case .audioAttachment:
