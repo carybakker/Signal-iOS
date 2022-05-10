@@ -468,6 +468,16 @@ public class TSPaymentModelCursor: NSObject {
 //       Or we might take a "connection" if we end up having that class.
 @objc
 public extension TSPaymentModel {
+    class func grdbFetchCursor(transaction: GRDBReadTransaction, toOrFrom address: String?) -> TSPaymentModelCursor {
+        var sql = "SELECT * FROM \(PaymentModelRecord.databaseTableName) "
+        var args: [String] = []
+        if let address = address {
+            sql += "WHERE \(paymentModelColumn: .addressUuidString) = ?"
+            args.append(address)
+        }
+        return grdbFetchCursor(sql: sql, arguments: StatementArguments(args), transaction: transaction)
+    }
+
     class func grdbFetchCursor(transaction: GRDBReadTransaction) -> TSPaymentModelCursor {
         let database = transaction.database
         do {
@@ -494,17 +504,19 @@ public extension TSPaymentModel {
     // Traverses all records.
     // Records are not visited in any particular order.
     class func anyEnumerate(transaction: SDSAnyReadTransaction,
+                            toOrFrom address: String?,
                             block: @escaping (TSPaymentModel, UnsafeMutablePointer<ObjCBool>) -> Void) {
-        anyEnumerate(transaction: transaction, batched: false, block: block)
+        anyEnumerate(transaction: transaction, toOrFrom: address, batched: false, block: block)
     }
 
     // Traverses all records.
     // Records are not visited in any particular order.
     class func anyEnumerate(transaction: SDSAnyReadTransaction,
+                            toOrFrom address: String?,
                             batched: Bool = false,
                             block: @escaping (TSPaymentModel, UnsafeMutablePointer<ObjCBool>) -> Void) {
         let batchSize = batched ? Batching.kDefaultBatchSize : 0
-        anyEnumerate(transaction: transaction, batchSize: batchSize, block: block)
+        anyEnumerate(transaction: transaction, toOrFrom: address, batchSize: batchSize, block: block)
     }
 
     // Traverses all records.
@@ -514,9 +526,20 @@ public extension TSPaymentModel {
     class func anyEnumerate(transaction: SDSAnyReadTransaction,
                             batchSize: UInt,
                             block: @escaping (TSPaymentModel, UnsafeMutablePointer<ObjCBool>) -> Void) {
+        anyEnumerate(transaction: transaction, toOrFrom: nil, batchSize: batchSize, block: block)
+    }
+
+    // Traverses all records.
+    // Records are not visited in any particular order.
+    //
+    // If batchSize > 0, the enumeration is performed in autoreleased batches.
+    class func anyEnumerate(transaction: SDSAnyReadTransaction,
+                            toOrFrom address: String?,
+                            batchSize: UInt,
+                            block: @escaping (TSPaymentModel, UnsafeMutablePointer<ObjCBool>) -> Void) {
         switch transaction.readTransaction {
         case .grdbRead(let grdbTransaction):
-            let cursor = TSPaymentModel.grdbFetchCursor(transaction: grdbTransaction)
+            let cursor = TSPaymentModel.grdbFetchCursor(transaction: grdbTransaction, toOrFrom: address)
             Batching.loop(batchSize: batchSize,
                           loopBlock: { stop in
                                 do {
@@ -570,7 +593,16 @@ public extension TSPaymentModel {
     // Does not order the results.
     class func anyFetchAll(transaction: SDSAnyReadTransaction) -> [TSPaymentModel] {
         var result = [TSPaymentModel]()
-        anyEnumerate(transaction: transaction) { (model, _) in
+        anyEnumerate(transaction: transaction, toOrFrom: nil) { (model, _) in
+            result.append(model)
+        }
+        return result
+    }
+
+    // Does not order the results.
+    class func anyFetchAll(transaction: SDSAnyReadTransaction, toOrFrom address: String) -> [TSPaymentModel] {
+        var result = [TSPaymentModel]()
+        anyEnumerate(transaction: transaction, toOrFrom: address) { (model, _) in
             result.append(model)
         }
         return result
