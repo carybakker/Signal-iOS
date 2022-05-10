@@ -1,21 +1,21 @@
 //
-//  Copyright (c) 2021 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2022 Open Whisper Systems. All rights reserved.
 //
 
 import YYImage
 import SignalMessaging
 
 @objc
-public protocol LinkPreviewViewDraftDelegate {
-    func linkPreviewCanCancel() -> Bool
-    func linkPreviewDidCancel()
+public protocol PaymentPreviewViewDraftDelegate {
+    func paymentPreviewCanCancel() -> Bool
+    func paymentPreviewDidCancel()
 }
 
 // MARK: -
 
 @objc
-public class LinkPreviewView: ManualStackViewWithLayer {
-    private weak var draftDelegate: LinkPreviewViewDraftDelegate?
+public class PaymentPreviewView: ManualStackViewWithLayer {
+    private weak var draftDelegate: PaymentPreviewViewDraftDelegate?
 
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -34,7 +34,7 @@ public class LinkPreviewView: ManualStackViewWithLayer {
         notImplemented()
     }
 
-    public var state: LinkPreviewState?
+    public var state: PaymentPreviewState?
     private var configurationSize: CGSize?
     private var shouldReconfigureForBounds = false
 
@@ -46,18 +46,18 @@ public class LinkPreviewView: ManualStackViewWithLayer {
     fileprivate let descriptionLabel = CVLabel()
     fileprivate let displayDomainLabel = CVLabel()
 
-    fileprivate let linkPreviewImageView = LinkPreviewImageView()
+    fileprivate let paymentPreviewImageView = PaymentPreviewImageView()
 
     fileprivate var cancelButton: UIView?
 
     @objc
-    public init(draftDelegate: LinkPreviewViewDraftDelegate?) {
+    public init(draftDelegate: PaymentPreviewViewDraftDelegate?) {
         self.draftDelegate = draftDelegate
 
-        super.init(name: "LinkPreviewView")
+        super.init(name: "PaymentPreviewView")
 
         if let draftDelegate = draftDelegate,
-           draftDelegate.linkPreviewCanCancel() {
+           draftDelegate.paymentPreviewCanCancel() {
             self.isUserInteractionEnabled = true
             self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(wasTapped)))
         }
@@ -66,11 +66,11 @@ public class LinkPreviewView: ManualStackViewWithLayer {
     private var nonCvcLayoutConstraint: NSLayoutConstraint?
 
     // This view is used in a number of places to display "drafts"
-    // of outgoing link previews.  In these cases, the view will
+    // of outgoing payment previews.  In these cases, the view will
     // be embedded within views using iOS auto layout and will need
     // to reconfigure its contents whenever the view size changes.
     @objc
-    public func configureForNonCVC(state: LinkPreviewState,
+    public func configureForNonCVC(state: PaymentPreviewState,
                                    isDraft: Bool,
                                    hasAsymmetricalRounding: Bool = false) {
 
@@ -82,21 +82,21 @@ public class LinkPreviewView: ManualStackViewWithLayer {
                                     hasAsymmetricalRounding: hasAsymmetricalRounding)
 
         addLayoutBlock { view in
-            guard let linkPreviewView = view as? LinkPreviewView else {
+            guard let paymentPreviewView = view as? PaymentPreviewView else {
                 owsFailDebug("Invalid view.")
                 return
             }
-            if let state = linkPreviewView.state,
-               linkPreviewView.shouldReconfigureForBounds,
-               linkPreviewView.configurationSize != linkPreviewView.bounds.size {
-                linkPreviewView.applyConfigurationForNonCVC(state: state,
+            if let state = paymentPreviewView.state,
+               paymentPreviewView.shouldReconfigureForBounds,
+               paymentPreviewView.configurationSize != paymentPreviewView.bounds.size {
+                paymentPreviewView.applyConfigurationForNonCVC(state: state,
                                                             isDraft: isDraft,
                                                             hasAsymmetricalRounding: hasAsymmetricalRounding)
             }
         }
     }
 
-    private func applyConfigurationForNonCVC(state: LinkPreviewState,
+    private func applyConfigurationForNonCVC(state: PaymentPreviewState,
                                              isDraft: Bool,
                                              hasAsymmetricalRounding: Bool) {
         self.reset()
@@ -106,7 +106,7 @@ public class LinkPreviewView: ManualStackViewWithLayer {
                             : CGFloat.greatestFiniteMagnitude)
 
         let measurementBuilder = CVCellMeasurement.Builder()
-        let linkPreviewSize = Self.measure(maxWidth: maxWidth,
+        let paymentPreviewSize = Self.measure(maxWidth: maxWidth,
                                            measurementBuilder: measurementBuilder,
                                            state: state,
                                            isDraft: isDraft)
@@ -117,45 +117,43 @@ public class LinkPreviewView: ManualStackViewWithLayer {
                               cellMeasurement: cellMeasurement)
 
         if let nonCvcLayoutConstraint = self.nonCvcLayoutConstraint {
-            nonCvcLayoutConstraint.constant = linkPreviewSize.height
+            nonCvcLayoutConstraint.constant = paymentPreviewSize.height
         } else {
             self.nonCvcLayoutConstraint = self.autoSetDimension(.height,
-                                                                toSize: linkPreviewSize.height)
+                                                                toSize: paymentPreviewSize.height)
         }
     }
 
-    public func configureForRendering(state: LinkPreviewState,
+    public func configureForRendering(state: PaymentPreviewState,
                                       isDraft: Bool,
                                       hasAsymmetricalRounding: Bool,
                                       cellMeasurement: CVCellMeasurement) {
         self.state = state
         let adapter = Self.adapter(forState: state, isDraft: isDraft)
-        adapter.configureForRendering(linkPreviewView: self,
+        adapter.configureForRendering(paymentPreviewView: self,
                                       hasAsymmetricalRounding: hasAsymmetricalRounding,
                                       cellMeasurement: cellMeasurement)
     }
 
-    private static func adapter(forState state: LinkPreviewState,
-                                isDraft: Bool) -> LinkPreviewViewAdapter {
+    private static func adapter(forState state: PaymentPreviewState,
+                                isDraft: Bool) -> PaymentPreviewViewAdapter {
         if !state.isLoaded() {
-            return LinkPreviewViewAdapterDraftLoading(state: state)
+            return PaymentPreviewViewAdapterDraftLoading(state: state)
         } else if isDraft {
-            return LinkPreviewViewAdapterDraft(state: state)
-        } else if state.isGroupInviteLink {
-            return LinkPreviewViewAdapterGroupLink(state: state)
+            return PaymentPreviewViewAdapterDraft(state: state)
         } else {
-            if state.hasLoadedImage {
-                if Self.sentIsHero(state: state) {
-                    return LinkPreviewViewAdapterSentHero(state: state)
-                } else if state.previewDescription()?.isEmpty == false,
-                          state.title()?.isEmpty == false {
-                    return LinkPreviewViewAdapterSentWithDescription(state: state)
-                } else {
-                    return LinkPreviewViewAdapterSent(state: state)
-                }
-            } else {
-                return LinkPreviewViewAdapterSent(state: state)
-            }
+//            if state.hasLoadedImage {
+//                if Self.sentIsHero(state: state) {
+//                    return PaymentPreviewViewAdapterSentHero(state: state)
+//                } else if state.previewDescription()?.isEmpty == false,
+//                          state.title()?.isEmpty == false {
+//                    return PaymentPreviewViewAdapterSentWithDescription(state: state)
+//                } else {
+//                    return PaymentPreviewViewAdapterSent(state: state)
+//                }
+//            } else {
+                return PaymentPreviewViewAdapterSent(state: state)
+//            }
         }
     }
 
@@ -188,38 +186,11 @@ public class LinkPreviewView: ManualStackViewWithLayer {
     fileprivate static let sentTitleLineCount: Int = 2
     fileprivate static let sentDescriptionLineCount: Int = 3
 
-    fileprivate static func sentIsHero(state: LinkPreviewState) -> Bool {
-        if isSticker(state: state) || state.isGroupInviteLink {
-            return false
-        }
-        guard let heroWidthPoints = state.conversationStyle?.maxMessageWidth else {
-            return false
-        }
-
-        // On a 1x device, even tiny images like avatars can satisfy the max message width
-        // On a 3x device, achieving a 3x pixel match on an og:image is rare
-        // By fudging the required scaling a bit towards 2.0, we get more consistency at the
-        // cost of slightly blurrier images on 3x devices.
-        // These are totally made up numbers so feel free to adjust as necessary.
-        let heroScalingFactors: [CGFloat: CGFloat] = [
-            1.0: 2.0,
-            2.0: 2.0,
-            3.0: 2.3333
-        ]
-        let scalingFactor = heroScalingFactors[UIScreen.main.scale] ?? {
-            // Oh neat a new device! Might want to add it.
-            owsFailDebug("Unrecognized device scale")
-            return 2.0
-        }()
-        let minimumHeroWidth = heroWidthPoints * scalingFactor
-        let minimumHeroHeight = minimumHeroWidth * 0.33
-
-        let widthSatisfied = state.imagePixelSize.width >= minimumHeroWidth
-        let heightSatisfied = state.imagePixelSize.height >= minimumHeroHeight
-        return widthSatisfied && heightSatisfied
+    fileprivate static func sentIsHero(state: PaymentPreviewState) -> Bool {
+        return false
     }
 
-    private static func isSticker(state: LinkPreviewState) -> Bool {
+    private static func isSticker(state: PaymentPreviewState) -> Bool {
         guard let urlString = state.urlString() else {
             owsFailDebug("Link preview is missing url.")
             return false
@@ -244,9 +215,9 @@ public class LinkPreviewView: ManualStackViewWithLayer {
             return
         }
         if let cancelButton = cancelButton {
-            // Permissive hot area to make it very easy to cancel the link preview.
+            // Permissive hot area to make it very easy to cancel the payment preview.
             if cancelButton.containsGestureLocation(sender, hotAreaAdjustment: 20) {
-                self.draftDelegate?.linkPreviewDidCancel()
+                self.draftDelegate?.paymentPreviewDidCancel()
                 return
             }
         }
@@ -256,7 +227,7 @@ public class LinkPreviewView: ManualStackViewWithLayer {
 
     public static func measure(maxWidth: CGFloat,
                                measurementBuilder: CVCellMeasurement.Builder,
-                               state: LinkPreviewState,
+                               state: PaymentPreviewState,
                                isDraft: Bool) -> CGSize {
         let adapter = Self.adapter(forState: state, isDraft: isDraft)
         let size = adapter.measure(maxWidth: maxWidth,
@@ -270,7 +241,7 @@ public class LinkPreviewView: ManualStackViewWithLayer {
 
     @objc
     fileprivate func didTapCancel() {
-        draftDelegate?.linkPreviewDidCancel()
+        draftDelegate?.paymentPreviewDidCancel()
     }
 
     public override func reset() {
@@ -286,12 +257,12 @@ public class LinkPreviewView: ManualStackViewWithLayer {
         descriptionLabel.text = nil
         displayDomainLabel.text = nil
 
-        linkPreviewImageView.reset()
+        paymentPreviewImageView.reset()
 
         for subview in [
             rightStack, textStack, titleStack,
             titleLabel, descriptionLabel, displayDomainLabel,
-            linkPreviewImageView
+            paymentPreviewImageView
         ] {
             subview.removeFromSuperview()
         }
@@ -305,26 +276,26 @@ public class LinkPreviewView: ManualStackViewWithLayer {
 
 // MARK: -
 
-private protocol LinkPreviewViewAdapter {
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+private protocol PaymentPreviewViewAdapter {
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement)
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize
+                 state: PaymentPreviewState) -> CGSize
 }
 
 // MARK: -
 
-extension LinkPreviewViewAdapter {
+extension PaymentPreviewViewAdapter {
 
-    fileprivate static var measurementKey_rootStack: String { "LinkPreviewView.measurementKey_rootStack" }
-    fileprivate static var measurementKey_rightStack: String { "LinkPreviewView.measurementKey_rightStack" }
-    fileprivate static var measurementKey_textStack: String { "LinkPreviewView.measurementKey_textStack" }
-    fileprivate static var measurementKey_titleStack: String { "LinkPreviewView.measurementKey_titleStack" }
+    fileprivate static var measurementKey_rootStack: String { "PaymentPreviewView.measurementKey_rootStack" }
+    fileprivate static var measurementKey_rightStack: String { "PaymentPreviewView.measurementKey_rightStack" }
+    fileprivate static var measurementKey_textStack: String { "PaymentPreviewView.measurementKey_textStack" }
+    fileprivate static var measurementKey_titleStack: String { "PaymentPreviewView.measurementKey_titleStack" }
 
-    func sentTitleLabel(state: LinkPreviewState) -> UILabel? {
+    func sentTitleLabel(state: PaymentPreviewState) -> UILabel? {
         guard let config = sentTitleLabelConfig(state: state) else {
             return nil
         }
@@ -333,18 +304,18 @@ extension LinkPreviewViewAdapter {
         return label
     }
 
-    func sentTitleLabelConfig(state: LinkPreviewState) -> CVLabelConfig? {
+    func sentTitleLabelConfig(state: PaymentPreviewState) -> CVLabelConfig? {
         guard let text = state.title() else {
             return nil
         }
         return CVLabelConfig(text: text,
                              font: UIFont.ows_dynamicTypeSubheadline.ows_semibold,
                              textColor: Theme.primaryTextColor,
-                             numberOfLines: LinkPreviewView.sentTitleLineCount,
+                             numberOfLines: PaymentPreviewView.sentTitleLineCount,
                              lineBreakMode: .byTruncatingTail)
     }
 
-    func sentDescriptionLabel(state: LinkPreviewState) -> UILabel? {
+    func sentDescriptionLabel(state: PaymentPreviewState) -> UILabel? {
         guard let config = sentDescriptionLabelConfig(state: state) else {
             return nil
         }
@@ -353,31 +324,31 @@ extension LinkPreviewViewAdapter {
         return label
     }
 
-    func sentDescriptionLabelConfig(state: LinkPreviewState) -> CVLabelConfig? {
+    func sentDescriptionLabelConfig(state: PaymentPreviewState) -> CVLabelConfig? {
         guard let text = state.previewDescription() else { return nil }
         return CVLabelConfig(text: text,
                              font: UIFont.ows_dynamicTypeSubheadline,
                              textColor: Theme.primaryTextColor,
-                             numberOfLines: LinkPreviewView.sentDescriptionLineCount,
+                             numberOfLines: PaymentPreviewView.sentDescriptionLineCount,
                              lineBreakMode: .byTruncatingTail)
     }
 
-    func sentDomainLabel(state: LinkPreviewState) -> UILabel {
+    func sentDomainLabel(state: PaymentPreviewState) -> UILabel {
         let label = CVLabel()
         sentDomainLabelConfig(state: state).applyForRendering(label: label)
         return label
     }
 
-    func sentDomainLabelConfig(state: LinkPreviewState) -> CVLabelConfig {
+    func sentDomainLabelConfig(state: PaymentPreviewState) -> CVLabelConfig {
         var labelText: String
         if let displayDomain = state.displayDomain(),
            displayDomain.count > 0 {
             labelText = displayDomain.lowercased()
         } else {
-            labelText = NSLocalizedString("LINK_PREVIEW_UNKNOWN_DOMAIN", comment: "Label for link previews with an unknown host.").uppercased()
+            labelText = NSLocalizedString("LINK_PREVIEW_UNKNOWN_DOMAIN", comment: "Label for payment previews with an unknown host.").uppercased()
         }
         if let date = state.date() {
-            labelText.append(" ⋅ \(LinkPreviewView.dateFormatter.string(from: date))")
+            labelText.append(" ⋅ \(PaymentPreviewView.dateFormatter.string(from: date))")
         }
         return CVLabelConfig(text: labelText,
                              font: UIFont.ows_dynamicTypeCaption1,
@@ -385,8 +356,8 @@ extension LinkPreviewViewAdapter {
                              lineBreakMode: .byTruncatingTail)
     }
 
-    func configureSentTextStack(linkPreviewView: LinkPreviewView,
-                                state: LinkPreviewState,
+    func configureSentTextStack(paymentPreviewView: PaymentPreviewView,
+                                state: PaymentPreviewState,
                                 textStack: ManualStackView,
                                 textStackConfig: ManualStackView.Config,
                                 cellMeasurement: CVCellMeasurement) {
@@ -408,7 +379,7 @@ extension LinkPreviewViewAdapter {
                             subviews: subviews)
     }
 
-    func measureSentTextStack(state: LinkPreviewState,
+    func measureSentTextStack(state: PaymentPreviewState,
                               textStackConfig: ManualStackView.Config,
                               measurementBuilder: CVCellMeasurement.Builder,
                               maxLabelWidth: CGFloat) -> CGSize {
@@ -437,21 +408,21 @@ extension LinkPreviewViewAdapter {
 
 // MARK: -
 
-private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterDraft: PaymentPreviewViewAdapter {
 
     static let draftHeight: CGFloat = 72
     static let draftMarginTop: CGFloat = 6
     var imageSize: CGFloat { Self.draftHeight }
     let cancelSize: CGFloat = 20
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
     var rootStackConfig: ManualStackView.Config {
-        let hMarginLeading: CGFloat = state.hasLoadedImage ? 6 : 12
+        let hMarginLeading: CGFloat = 12
         let hMarginTrailing: CGFloat = 12
         let layoutMargins = UIEdgeInsets(top: Self.draftMarginTop,
                                          leading: hMarginLeading,
@@ -503,7 +474,7 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
         }
         var text = displayDomain.lowercased()
         if let date = state.date() {
-            text.append(" ⋅ \(LinkPreviewView.dateFormatter.string(from: date))")
+            text.append(" ⋅ \(PaymentPreviewView.dateFormatter.string(from: date))")
         }
         return CVLabelConfig(text: text,
                              font: .ows_dynamicTypeCaption1,
@@ -511,52 +482,36 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
                              lineBreakMode: .byTruncatingTail)
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
         var rootStackSubviews = [UIView]()
         var rightStackSubviews = [UIView]()
 
-        // Image
-
-        if state.hasLoadedImage {
-            let linkPreviewImageView = linkPreviewView.linkPreviewImageView
-            if let imageView = linkPreviewImageView.configureForDraft(state: state,
-                                                                      hasAsymmetricalRounding: hasAsymmetricalRounding) {
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                rootStackSubviews.append(imageView)
-            } else {
-                owsFailDebug("Could not load image.")
-                let imageView = UIView.transparentSpacer()
-                rootStackSubviews.append(imageView)
-            }
-        }
-
         // Text
 
         var textStackSubviews = [UIView]()
 
         if let titleLabelConfig = self.titleLabelConfig {
-            let titleLabel = linkPreviewView.titleLabel
+            let titleLabel = paymentPreviewView.titleLabel
             titleLabelConfig.applyForRendering(label: titleLabel)
             textStackSubviews.append(titleLabel)
         }
 
         if let descriptionLabelConfig = self.descriptionLabelConfig {
-            let descriptionLabel = linkPreviewView.descriptionLabel
+            let descriptionLabel = paymentPreviewView.descriptionLabel
             descriptionLabelConfig.applyForRendering(label: descriptionLabel)
             textStackSubviews.append(descriptionLabel)
         }
 
         if let displayDomainLabelConfig = self.displayDomainLabelConfig {
-            let displayDomainLabel = linkPreviewView.displayDomainLabel
+            let displayDomainLabel = paymentPreviewView.displayDomainLabel
             displayDomainLabelConfig.applyForRendering(label: displayDomainLabel)
             textStackSubviews.append(displayDomainLabel)
         }
 
-        let textStack = linkPreviewView.textStack
+        let textStack = paymentPreviewView.textStack
         textStack.configure(config: textStackConfig,
                             cellMeasurement: cellMeasurement,
                             measurementKey: Self.measurementKey_textStack,
@@ -577,11 +532,11 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
 
         // Cancel
 
-        let cancelButton = OWSButton { [weak linkPreviewView] in
-            linkPreviewView?.didTapCancel()
+        let cancelButton = OWSButton { [weak paymentPreviewView] in
+            paymentPreviewView?.didTapCancel()
         }
         cancelButton.accessibilityLabel = MessageStrings.removePreviewButtonLabel
-        linkPreviewView.cancelButton = cancelButton
+        paymentPreviewView.cancelButton = cancelButton
         cancelButton.setTemplateImageName("compose-cancel",
                                           tintColor: Theme.secondaryTextAndIconColor)
         let cancelSize = self.cancelSize
@@ -596,7 +551,7 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
 
         // Right
 
-        let rightStack = linkPreviewView.rightStack
+        let rightStack = paymentPreviewView.rightStack
         rightStack.configure(config: rightStackConfig,
                              cellMeasurement: cellMeasurement,
                              measurementKey: Self.measurementKey_rightStack,
@@ -609,7 +564,7 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
         strokeView.backgroundColor = Theme.secondaryTextAndIconColor
         rightStack.addSubviewAsBottomStroke(strokeView)
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: rootStackSubviews)
@@ -617,7 +572,7 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         var maxLabelWidth = (maxWidth -
                                 (textStackConfig.layoutMargins.totalWidth +
@@ -626,13 +581,6 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
 
         var rootStackSubviewInfos = [ManualStackSubviewInfo]()
         var rightStackSubviewInfos = [ManualStackSubviewInfo]()
-
-        // Image
-
-        if state.hasLoadedImage {
-            rootStackSubviewInfos.append(CGSize.square(imageSize).asManualSubviewInfo(hasFixedSize: true))
-            maxLabelWidth -= imageSize + rootStackConfig.spacing
-        }
 
         // Text
 
@@ -673,21 +621,21 @@ private class LinkPreviewViewAdapterDraft: LinkPreviewViewAdapter {
                                                            subviewInfos: rootStackSubviewInfos,
                                                            maxWidth: maxWidth)
         var rootStackSize = rootStackMeasurement.measuredSize
-        rootStackSize.height = (LinkPreviewViewAdapterDraft.draftHeight +
-                                    LinkPreviewViewAdapterDraft.draftMarginTop)
+        rootStackSize.height = (PaymentPreviewViewAdapterDraft.draftHeight +
+                                    PaymentPreviewViewAdapterDraft.draftMarginTop)
         return rootStackSize
     }
 }
 
 // MARK: -
 
-private class LinkPreviewViewAdapterDraftLoading: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterDraftLoading: PaymentPreviewViewAdapter {
 
     let activityIndicatorSize = CGSize.square(25)
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
@@ -698,23 +646,23 @@ private class LinkPreviewViewAdapterDraftLoading: LinkPreviewViewAdapter {
                                layoutMargins: .zero)
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
         let activityIndicatorStyle = state.activityIndicatorStyle
         let activityIndicator = UIActivityIndicatorView(style: activityIndicatorStyle)
         activityIndicator.startAnimating()
-        linkPreviewView.addSubviewToCenterOnSuperview(activityIndicator,
+        paymentPreviewView.addSubviewToCenterOnSuperview(activityIndicator,
                                                       size: activityIndicatorSize)
 
         let strokeView = UIView()
         strokeView.backgroundColor = Theme.secondaryTextAndIconColor
-        linkPreviewView.addSubviewAsBottomStroke(strokeView,
+        paymentPreviewView.addSubviewAsBottomStroke(strokeView,
                                                  layoutMargins: UIEdgeInsets(hMargin: 12,
                                                                              vMargin: 0))
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: [])
@@ -722,7 +670,7 @@ private class LinkPreviewViewAdapterDraftLoading: LinkPreviewViewAdapter {
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         let rootStackMeasurement = ManualStackView.measure(config: rootStackConfig,
                                                            measurementBuilder: measurementBuilder,
@@ -730,57 +678,45 @@ private class LinkPreviewViewAdapterDraftLoading: LinkPreviewViewAdapter {
                                                            subviewInfos: [],
                                                            maxWidth: maxWidth)
         var rootStackSize = rootStackMeasurement.measuredSize
-        rootStackSize.height = (LinkPreviewViewAdapterDraft.draftHeight +
-                                    LinkPreviewViewAdapterDraft.draftMarginTop)
+        rootStackSize.height = (PaymentPreviewViewAdapterDraft.draftHeight +
+                                    PaymentPreviewViewAdapterDraft.draftMarginTop)
         return rootStackSize
     }
 }
 
 // MARK: -
 
-private class LinkPreviewViewAdapterGroupLink: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterGroupLink: PaymentPreviewViewAdapter {
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
     var rootStackConfig: ManualStackView.Config {
         ManualStackView.Config(axis: .horizontal,
                                alignment: .fill,
-                               spacing: LinkPreviewView.sentNonHeroHSpacing,
-                               layoutMargins: LinkPreviewView.sentNonHeroLayoutMargins)
+                               spacing: PaymentPreviewView.sentNonHeroHSpacing,
+                               layoutMargins: PaymentPreviewView.sentNonHeroLayoutMargins)
     }
 
     var textStackConfig: ManualStackView.Config {
         return ManualStackView.Config(axis: .vertical,
                                       alignment: .leading,
-                                      spacing: LinkPreviewView.sentVSpacing,
+                                      spacing: PaymentPreviewView.sentVSpacing,
                                       layoutMargins: .zero)
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
-        linkPreviewView.backgroundColor = Theme.secondaryBackgroundColor
+        paymentPreviewView.backgroundColor = Theme.secondaryBackgroundColor
 
         var rootStackSubviews = [UIView]()
 
-        let linkPreviewImageView = linkPreviewView.linkPreviewImageView
-        if state.hasLoadedImage {
-            if let imageView = linkPreviewImageView.configure(state: state, rounding: .circular) {
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                rootStackSubviews.append(imageView)
-            } else {
-                owsFailDebug("Could not load image.")
-                rootStackSubviews.append(UIView.transparentSpacer())
-            }
-        }
-
-        let textStack = linkPreviewView.textStack
+        let textStack = paymentPreviewView.textStack
         var textStackSubviews = [UIView]()
         if let titleLabel = sentTitleLabel(state: state) {
             textStackSubviews.append(titleLabel)
@@ -794,7 +730,7 @@ private class LinkPreviewViewAdapterGroupLink: LinkPreviewViewAdapter {
                             subviews: textStackSubviews)
         rootStackSubviews.append(textStack)
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: rootStackSubviews)
@@ -802,18 +738,13 @@ private class LinkPreviewViewAdapterGroupLink: LinkPreviewViewAdapter {
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         var maxLabelWidth = (maxWidth -
                                 (textStackConfig.layoutMargins.totalWidth +
                                     rootStackConfig.layoutMargins.totalWidth))
 
         var rootStackSubviewInfos = [ManualStackSubviewInfo]()
-        if state.hasLoadedImage {
-            let imageSize = LinkPreviewView.sentNonHeroImageSize
-            rootStackSubviewInfos.append(CGSize.square(imageSize).asManualSubviewInfo(hasFixedSize: true))
-            maxLabelWidth -= imageSize + rootStackConfig.spacing
-        }
 
         maxLabelWidth = max(0, maxLabelWidth)
 
@@ -844,11 +775,11 @@ private class LinkPreviewViewAdapterGroupLink: LinkPreviewViewAdapter {
 
 // MARK: -
 
-private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterSentHero: PaymentPreviewViewAdapter {
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
@@ -862,20 +793,20 @@ private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
     var textStackConfig: ManualStackView.Config {
         return ManualStackView.Config(axis: .vertical,
                                       alignment: .leading,
-                                      spacing: LinkPreviewView.sentVSpacing,
-                                      layoutMargins: LinkPreviewView.sentHeroLayoutMargins)
+                                      spacing: PaymentPreviewView.sentVSpacing,
+                                      layoutMargins: PaymentPreviewView.sentHeroLayoutMargins)
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
-        linkPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
+        paymentPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
 
         var rootStackSubviews = [UIView]()
 
-        let linkPreviewImageView = linkPreviewView.linkPreviewImageView
-        if let imageView = linkPreviewImageView.configure(state: state) {
+        let paymentPreviewImageView = paymentPreviewView.paymentPreviewImageView
+        if let imageView = paymentPreviewImageView.configure(state: state) {
             imageView.contentMode = .scaleAspectFill
             imageView.clipsToBounds = true
             rootStackSubviews.append(imageView)
@@ -884,15 +815,15 @@ private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
             rootStackSubviews.append(UIView.transparentSpacer())
         }
 
-        let textStack = linkPreviewView.textStack
-        configureSentTextStack(linkPreviewView: linkPreviewView,
+        let textStack = paymentPreviewView.textStack
+        configureSentTextStack(paymentPreviewView: paymentPreviewView,
                                state: state,
                                textStack: textStack,
                                textStackConfig: textStackConfig,
                                cellMeasurement: cellMeasurement)
         rootStackSubviews.append(textStack)
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: rootStackSubviews)
@@ -900,7 +831,7 @@ private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         guard let conversationStyle = state.conversationStyle else {
             owsFailDebug("Missing conversationStyle.")
@@ -909,11 +840,6 @@ private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
 
         var rootStackSubviewInfos = [ManualStackSubviewInfo]()
 
-        let heroImageSize = sentHeroImageSize(state: state,
-                                              conversationStyle: conversationStyle,
-                                              maxWidth: maxWidth)
-        rootStackSubviewInfos.append(heroImageSize.asManualSubviewInfo)
-
         var maxLabelWidth = (maxWidth -
                                 (textStackConfig.layoutMargins.totalWidth +
                                     rootStackConfig.layoutMargins.totalWidth))
@@ -932,76 +858,49 @@ private class LinkPreviewViewAdapterSentHero: LinkPreviewViewAdapter {
                                                            maxWidth: maxWidth)
         return rootStackMeasurement.measuredSize
     }
-
-    func sentHeroImageSize(state: LinkPreviewState,
-                           conversationStyle: ConversationStyle,
-                           maxWidth: CGFloat) -> CGSize {
-
-        let imageHeightWidthRatio = (state.imagePixelSize.height / state.imagePixelSize.width)
-        let maxMessageWidth = min(maxWidth, conversationStyle.maxMessageWidth)
-
-        let minImageHeight: CGFloat = maxMessageWidth * 0.5
-        let maxImageHeight: CGFloat = maxMessageWidth
-        let rawImageHeight = maxMessageWidth * imageHeightWidthRatio
-
-        let normalizedHeight: CGFloat = min(maxImageHeight, max(minImageHeight, rawImageHeight))
-        return CGSizeCeil(CGSize(width: maxMessageWidth, height: normalizedHeight))
-    }
 }
 
 // MARK: -
 
-private class LinkPreviewViewAdapterSent: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterSent: PaymentPreviewViewAdapter {
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
     var rootStackConfig: ManualStackView.Config {
         ManualStackView.Config(axis: .horizontal,
                                alignment: .center,
-                               spacing: LinkPreviewView.sentNonHeroHSpacing,
-                               layoutMargins: LinkPreviewView.sentNonHeroLayoutMargins)
+                               spacing: PaymentPreviewView.sentNonHeroHSpacing,
+                               layoutMargins: PaymentPreviewView.sentNonHeroLayoutMargins)
     }
 
     var textStackConfig: ManualStackView.Config {
         return ManualStackView.Config(axis: .vertical,
                                       alignment: .leading,
-                                      spacing: LinkPreviewView.sentVSpacing,
+                                      spacing: PaymentPreviewView.sentVSpacing,
                                       layoutMargins: .zero)
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
-        linkPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
+        paymentPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
 
         var rootStackSubviews = [UIView]()
 
-        if state.hasLoadedImage {
-            let linkPreviewImageView = linkPreviewView.linkPreviewImageView
-            if let imageView = linkPreviewImageView.configure(state: state) {
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                rootStackSubviews.append(imageView)
-            } else {
-                owsFailDebug("Could not load image.")
-                rootStackSubviews.append(UIView.transparentSpacer())
-            }
-        }
-
-        let textStack = linkPreviewView.textStack
-        configureSentTextStack(linkPreviewView: linkPreviewView,
+        let textStack = paymentPreviewView.textStack
+        configureSentTextStack(paymentPreviewView: paymentPreviewView,
                                state: state,
                                textStack: textStack,
                                textStackConfig: textStackConfig,
                                cellMeasurement: cellMeasurement)
         rootStackSubviews.append(textStack)
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: rootStackSubviews)
@@ -1009,19 +908,13 @@ private class LinkPreviewViewAdapterSent: LinkPreviewViewAdapter {
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         var maxLabelWidth = (maxWidth -
                                 (textStackConfig.layoutMargins.totalWidth +
                                     rootStackConfig.layoutMargins.totalWidth))
 
         var rootStackSubviewInfos = [ManualStackSubviewInfo]()
-        if state.hasLoadedImage {
-            let imageSize = LinkPreviewView.sentNonHeroImageSize
-            rootStackSubviewInfos.append(CGSize.square(imageSize).asManualSubviewInfo(hasFixedSize: true))
-            maxLabelWidth -= imageSize + rootStackConfig.spacing
-        }
-
         maxLabelWidth = max(0, maxLabelWidth)
 
         let textStackSize = measureSentTextStack(state: state,
@@ -1041,50 +934,38 @@ private class LinkPreviewViewAdapterSent: LinkPreviewViewAdapter {
 
 // MARK: -
 
-private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter {
+private class PaymentPreviewViewAdapterSentWithDescription: PaymentPreviewViewAdapter {
 
-    let state: LinkPreviewState
+    let state: PaymentPreviewState
 
-    init(state: LinkPreviewState) {
+    init(state: PaymentPreviewState) {
         self.state = state
     }
 
     var rootStackConfig: ManualStackView.Config {
         ManualStackView.Config(axis: .vertical,
                                alignment: .fill,
-                               spacing: LinkPreviewView.sentVSpacing,
-                               layoutMargins: LinkPreviewView.sentNonHeroLayoutMargins)
+                               spacing: PaymentPreviewView.sentVSpacing,
+                               layoutMargins: PaymentPreviewView.sentNonHeroLayoutMargins)
     }
 
     var titleStackConfig: ManualStackView.Config {
         return ManualStackView.Config(axis: .horizontal,
                                       alignment: .center,
-                                      spacing: LinkPreviewView.sentNonHeroHSpacing,
+                                      spacing: PaymentPreviewView.sentNonHeroHSpacing,
                                       layoutMargins: UIEdgeInsets(top: 0,
                                                                   left: 0,
-                                                                  bottom: LinkPreviewView.sentVSpacing,
+                                                                  bottom: PaymentPreviewView.sentVSpacing,
                                                                   right: 0))
     }
 
-    func configureForRendering(linkPreviewView: LinkPreviewView,
+    func configureForRendering(paymentPreviewView: PaymentPreviewView,
                                hasAsymmetricalRounding: Bool,
                                cellMeasurement: CVCellMeasurement) {
 
-        linkPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
+        paymentPreviewView.backgroundColor = Theme.isDarkThemeEnabled ? .ows_gray75 : .ows_gray02
 
         var titleStackSubviews = [UIView]()
-
-        if state.hasLoadedImage {
-            let linkPreviewImageView = linkPreviewView.linkPreviewImageView
-            if let imageView = linkPreviewImageView.configure(state: state) {
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                titleStackSubviews.append(imageView)
-            } else {
-                owsFailDebug("Could not load image.")
-                titleStackSubviews.append(UIView.transparentSpacer())
-            }
-        }
 
         if let titleLabel = sentTitleLabel(state: state) {
             titleStackSubviews.append(titleLabel)
@@ -1094,7 +975,7 @@ private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter 
 
         var rootStackSubviews = [UIView]()
 
-        let titleStack = linkPreviewView.titleStack
+        let titleStack = paymentPreviewView.titleStack
         titleStack.configure(config: titleStackConfig,
                              cellMeasurement: cellMeasurement,
                              measurementKey: Self.measurementKey_titleStack,
@@ -1110,7 +991,7 @@ private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter 
         let domainLabel = sentDomainLabel(state: state)
         rootStackSubviews.append(domainLabel)
 
-        linkPreviewView.configure(config: rootStackConfig,
+        paymentPreviewView.configure(config: rootStackConfig,
                                   cellMeasurement: cellMeasurement,
                                   measurementKey: Self.measurementKey_rootStack,
                                   subviews: rootStackSubviews)
@@ -1118,7 +999,7 @@ private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter 
 
     func measure(maxWidth: CGFloat,
                  measurementBuilder: CVCellMeasurement.Builder,
-                 state: LinkPreviewState) -> CGSize {
+                 state: PaymentPreviewState) -> CGSize {
 
         var maxRootLabelWidth = (maxWidth -
                                     (titleStackConfig.layoutMargins.totalWidth +
@@ -1128,11 +1009,6 @@ private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter 
         var maxTitleLabelWidth = maxRootLabelWidth
 
         var titleStackSubviewInfos = [ManualStackSubviewInfo]()
-        if state.hasLoadedImage {
-            let imageSize = LinkPreviewView.sentNonHeroImageSize
-            titleStackSubviewInfos.append(CGSize.square(imageSize).asManualSubviewInfo(hasFixedSize: true))
-            maxTitleLabelWidth -= imageSize + titleStackConfig.spacing
-        }
 
         maxTitleLabelWidth = max(0, maxTitleLabelWidth)
 
@@ -1175,7 +1051,7 @@ private class LinkPreviewViewAdapterSentWithDescription: LinkPreviewViewAdapter 
 
 // MARK: -
 
-private class LinkPreviewImageView: CVImageView {
+private class PaymentPreviewImageView: CVImageView {
     fileprivate enum Rounding: UInt {
         case standard
         case asymmetrical
@@ -1304,62 +1180,61 @@ private class LinkPreviewImageView: CVImageView {
 
     // MARK: -
 
-    func configureForDraft(state: LinkPreviewState,
+    func configureForDraft(state: PaymentPreviewState,
                            hasAsymmetricalRounding: Bool) -> UIImageView? {
         guard state.isLoaded() else {
             owsFailDebug("State not loaded.")
             return nil
         }
-        guard state.imageState() == .loaded else {
-            return nil
-        }
         self.rounding = hasAsymmetricalRounding ? .asymmetrical : .standard
         let configurationId = Self.configurationIdCounter.increment()
         self.configurationId = configurationId
-        state.imageAsync(thumbnailQuality: .small) { [weak self] image in
-            DispatchMainThreadSafe {
-                guard let self = self else { return }
-                guard self.configurationId == configurationId else { return }
-                self.image = image
-            }
-        }
         return self
     }
 
     fileprivate static let mediaCache = LRUCache<String, NSObject>(maxSize: 2,
                                                                    shouldEvacuateInBackground: true)
 
-    func configure(state: LinkPreviewState,
-                   rounding roundingParam: LinkPreviewImageView.Rounding? = nil) -> UIImageView? {
+    func configure(state: PaymentPreviewState,
+                   rounding roundingParam: PaymentPreviewImageView.Rounding? = nil) -> UIImageView? {
         guard state.isLoaded() else {
             owsFailDebug("State not loaded.")
             return nil
         }
-        guard state.imageState() == .loaded else {
-            return nil
-        }
         self.rounding = roundingParam ?? .standard
-        let isHero = LinkPreviewView.sentIsHero(state: state)
+        let isHero = PaymentPreviewView.sentIsHero(state: state)
         self.isHero = isHero
         let configurationId = Self.configurationIdCounter.increment()
         self.configurationId = configurationId
         let thumbnailQuality: AttachmentThumbnailQuality = isHero ? .medium : .small
 
-        if let cacheKey = state.imageCacheKey(thumbnailQuality: thumbnailQuality),
-           let image = Self.mediaCache.get(key: cacheKey) as? UIImage {
-            self.image = image
-        } else {
-            state.imageAsync(thumbnailQuality: thumbnailQuality) { [weak self] image in
-                DispatchMainThreadSafe {
-                    guard let self = self else { return }
-                    guard self.configurationId == configurationId else { return }
-                    self.image = image
-                    if let cacheKey = state.imageCacheKey(thumbnailQuality: thumbnailQuality) {
-                        Self.mediaCache.set(key: cacheKey, value: image)
-                    }
-                }
-            }
-        }
         return self
+    }
+}
+
+// MARK: -
+
+public extension CGPoint {
+    func offsetBy(dx: CGFloat = 0.0, dy: CGFloat = 0.0) -> CGPoint {
+        return offsetBy(CGVector(dx: dx, dy: dy))
+    }
+
+    func offsetBy(_ vector: CGVector) -> CGPoint {
+        return CGPoint(x: x + vector.dx, y: y + vector.dy)
+    }
+}
+
+// MARK: -
+
+public extension ManualLayoutView {
+    func addSubviewAsBottomStroke(_ subview: UIView,
+                                  layoutMargins: UIEdgeInsets = .zero) {
+        addSubview(subview) { view in
+            var subviewFrame = view.bounds.inset(by: layoutMargins)
+            subviewFrame.size.height = CGHairlineWidth()
+            subviewFrame.y = view.bounds.height - (subviewFrame.height +
+                                                    layoutMargins.bottom)
+            subview.frame = subviewFrame
+        }
     }
 }

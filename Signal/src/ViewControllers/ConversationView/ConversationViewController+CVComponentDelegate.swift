@@ -261,6 +261,11 @@ extension ConversationViewController: CVComponentDelegate {
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 
+    public func cvc_didTapPaymentPreview(_ paymentPreview: OWSPaymentPreview) {
+        AssertIsOnMainThread()
+        // TODO: Implement change to Payment History
+    }
+
     public func cvc_didTapContactShare(_ contactShare: ContactShareViewModel) {
         AssertIsOnMainThread()
 

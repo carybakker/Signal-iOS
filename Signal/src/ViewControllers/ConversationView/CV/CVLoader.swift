@@ -388,6 +388,7 @@ public class CVLoader: NSObject {
         case .textOnlyMessage, .audio, .genericAttachment, .contactShare,
              .bodyMedia, .viewOnce, .stickerMessage:
             rootComponent = CVComponentMessage(itemModel: itemModel)
+                        
         case .typingIndicator:
             guard let typingIndicator = itemModel.componentState.typingIndicator else {
                 owsFailDebug("Missing typingIndicator.")

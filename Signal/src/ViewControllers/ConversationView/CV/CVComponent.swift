@@ -334,6 +334,7 @@ public enum CVComponentKey: CustomStringConvertible, CaseIterable {
     case contactShare
     case bottomButtons
     case sendFailureBadge
+    case paymentPreview
 
     case systemMessage
     case dateHeader
@@ -395,6 +396,8 @@ public enum CVComponentKey: CustomStringConvertible, CaseIterable {
             return ".defaultDisappearingMessageTimer"
         case .messageRoot:
             return ".messageRoot"
+        case .paymentPreview:
+            return ".paymentPreview"
         }
     }
 

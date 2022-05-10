@@ -15,6 +15,7 @@ public enum CVMessageCellType: Int, CustomStringConvertible, Equatable {
     case bodyMedia
     case viewOnce
     case stickerMessage
+    //case paymentMessage
 
     // Most of these other message cell types use a special root view.
     case dateHeader
@@ -38,6 +39,7 @@ public enum CVMessageCellType: Int, CustomStringConvertible, Equatable {
             case .bodyMedia: return "bodyMedia"
             case .viewOnce: return "viewOnce"
             case .stickerMessage: return "stickerMessage"
+            //case .paymentMessage: return "paymentMessage"
             case .dateHeader: return "dateHeader"
             case .unreadIndicator: return "unreadIndicator"
             case .typingIndicator: return "typingIndicator"
