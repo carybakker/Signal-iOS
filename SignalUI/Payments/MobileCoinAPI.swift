@@ -150,7 +150,7 @@ public class MobileCoinAPI: Dependencies {
                     case .fogSyncError(let error):
                         mcError = ConnectionError.invalidServerResponse(error.description)
                     }
-                    let error = Self.convertMCError(error: error)
+                    let error = Self.convertMCError(error: mcError)
                     future.reject(error)
                 }
             }
