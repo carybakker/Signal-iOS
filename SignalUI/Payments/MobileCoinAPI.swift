@@ -138,11 +138,18 @@ public class MobileCoinAPI: Dependencies {
                 // Never resolve.
                 return promise
             }
-            client.updateBalance { (result: Swift.Result<Balance, ConnectionError>) in
+            client.updateBalance { (result: Swift.Result<Balance, BalanceUpdateError>) in
                 switch result {
                 case .success(let balance):
                     future.resolve(balance)
                 case .failure(let error):
+                    let mcError: ConnectionError
+                    switch error {
+                    case .connectionError(let error):
+                        mcError = error
+                    case .fogSyncError(let error):
+                        mcError = ConnectionError.invalidServerResponse(error.description)
+                    }
                     let error = Self.convertMCError(error: error)
                     future.reject(error)
                 }
@@ -540,12 +547,20 @@ public class MobileCoinAPI: Dependencies {
                 // Never resolve.
                 return promise
             }
-            client.updateBalance { (result: Swift.Result<Balance, ConnectionError>) in
+            client.updateBalance { (result: Swift.Result<Balance, BalanceUpdateError>) in
                 switch result {
                 case .success:
                     future.resolve(client.accountActivity)
                 case .failure(let error):
-                    let error = Self.convertMCError(error: error)
+                    let mcError: ConnectionError
+                    switch error {
+                    case .connectionError(let error):
+                        mcError = error
+                    case .fogSyncError(let error):
+                        mcError = ConnectionError.invalidServerResponse(error.description)
+                    }
+
+                    let error = Self.convertMCError(error: mcError)
                     future.reject(error)
                 }
             }
@@ -560,6 +575,20 @@ public class MobileCoinAPI: Dependencies {
             PaymentsError.timeout
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 // MARK: -
