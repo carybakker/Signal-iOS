@@ -138,7 +138,7 @@ public class MobileCoinAPI: Dependencies {
                 // Never resolve.
                 return promise
             }
-            client.updateBalance { (result: Swift.Result<Balance, BalanceUpdateError>) in
+            client.updateBalance { (result: Swift.Result<Balance, ConnectionError>) in
                 switch result {
                 case .success(let balance):
                     future.resolve(balance)
@@ -540,7 +540,7 @@ public class MobileCoinAPI: Dependencies {
                 // Never resolve.
                 return promise
             }
-            client.updateBalance { (result: Swift.Result<Balance, BalanceUpdateError>) in
+            client.updateBalance { (result: Swift.Result<Balance, ConnectionError>) in
                 switch result {
                 case .success:
                     future.resolve(client.accountActivity)
