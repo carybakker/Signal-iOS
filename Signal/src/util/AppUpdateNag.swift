@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import SignalServiceKit
 
 @objc
 class AppUpdateNag: NSObject {
@@ -33,6 +34,9 @@ class AppUpdateNag: NSObject {
             owsFailDebug("appStoreURL was unexpectedly nil")
             return
         }
+        
+        guard false else { return }
+//        guard FeatureFlags.ignoreAppStoreVersionNag == false else { return }
 
         firstly {
             self.versionService.fetchLatestVersion(lookupURL: lookupURL)

@@ -481,6 +481,9 @@ public class DebugFlags: BaseFlags {
                                                               details: LocalizationNotNeeded("The UI will appear in settings."))
 
     @objc
+    public static let ignoreAppStoreVersionNag = true
+    
+    @objc
     public static let deviceTransferPreserveOldDevice = false
 
     @objc
